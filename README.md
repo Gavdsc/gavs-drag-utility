@@ -50,3 +50,4 @@ You can find the example usage in the component used in the storybook story.
 | friction     | number  | 1000    | Friction to represent the amount of speed (inertia) to decay a second. Set nice and high. |
 | touchSpeed   | number  | .1      | Micro adjustment for touch inertia (basically touch friction on initial velocity).        |
 | mouseSpeed   | number  | .05     | Micro adjustment for mouse inertia (basically mouse friction on initial velocity).        |
+| maxSpeed     | number  | 1200    | Maximum velocity tolerance to prevent unexpected strong arms.                             |

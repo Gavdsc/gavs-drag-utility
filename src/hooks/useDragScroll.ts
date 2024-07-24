@@ -1,6 +1,6 @@
 import React, { useCallback, useRef } from "react";
 import useInertia from "@/hooks/useInertia";
-import { speed, distance, TimeDelta, delta } from "@/utilities";
+import { speed, distance, TimeDelta, delta, applyVelocityTolerance } from "@/utilities";
 
 // Interface for position co-ordinates
 interface Position {
@@ -19,7 +19,8 @@ interface useDragScrollProps {
     inertia?: boolean,
     friction?: number,
     touchSpeed?: number,
-    mouseSpeed?: number
+    mouseSpeed?: number,
+    maxVelocity?: number
 }
 
 /**
@@ -31,6 +32,7 @@ interface useDragScrollProps {
  * @param friction - Friction to represent the amount of speed to decay a second. Set nice and high.
  * @param touchSpeed - Micro adjustment for touch inertia (basically touch friction on initial velocity).
  * @param mouseSpeed - Micro adjustment for mouse inertia (basically mouse friction on initial velocity).
+ * @param maxVelocity - Maximum velocity tolerance to prevent unexpected strong arms.
  */
 export default function useDragScroll({
     scrollFactor = 1,
@@ -39,7 +41,8 @@ export default function useDragScroll({
     inertia = false,
     friction = 1000,
     touchSpeed = .1,
-    mouseSpeed = .05
+    mouseSpeed = .05,
+    maxVelocity = 1200
 }: useDragScrollProps = {}): [React.RefCallback<HTMLElement>] {
     // Reference to the scrollable element
     const nodeRef: React.MutableRefObject<HTMLElement | null> = useRef<HTMLElement | null>(null);
@@ -130,10 +133,18 @@ export default function useDragScroll({
             // Adjust the speed for mouse and touch based on event
             const eventSpeed: number = touch ? touchSpeed : mouseSpeed;
 
-            // Check for time difference and apply velocity (making a sane speed adjustment)
+            // Check for time difference and apply velocity
             if (timeDelta.delta > 0) {
-                velocity.current.x = speed(dx, timeDelta.seconds, eventSpeed);
-                velocity.current.y = speed(dy, timeDelta.seconds, eventSpeed);
+                // Apply max velocity tolerances
+                velocity.current.x = applyVelocityTolerance(
+                    speed(dx, timeDelta.seconds, eventSpeed),
+                    maxVelocity
+                );
+
+                velocity.current.y = applyVelocityTolerance(
+                    speed(dy, timeDelta.seconds, eventSpeed),
+                    maxVelocity
+                );
             }
 
             // Update the last time

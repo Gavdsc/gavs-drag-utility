@@ -1,25 +1,25 @@
 /**
- * Get the speed travelling with friction variable for devices.
+ * Get the speed travelling with adjustment variable for devices.
  * @param distance - The distance travelled.
  * @param time - The time it took in seconds.
- * @param friction - Adjustment to the speed.
+ * @param adjustment - Adjustment to the speed.
  */
-const speed = (distance: number, time: number, friction: number): number => {
+const speed = (distance: number, time: number, adjustment: number): number => {
     // Guard against division by 0
     if (time === 0)
         return 0;
 
     // Adjust and return the speed
-    return (distance / time) * friction;
+    return (distance / time) * adjustment;
 }
 
 /**
- * Get the distance travelled adjusted by a scale (e.g. scroll scale).
+ * Get the distance travelled adjusted by a factor (e.g. scroll factor).
  * @param previous - The previous position.
  * @param current - The current position.
- * @param scale - Factor to adjust by.
+ * @param factor - Factor to adjust by.
  */
-const distance = (previous: number, current: number, scale: number): number => (current - previous) * scale;
+const distance = (previous: number, current: number, factor: number): number => (current - previous) * factor;
 
 /**
  * A type to hold time delta information
@@ -60,7 +60,7 @@ const decay = (speed: number, delta: number, friction: number): number => {
     // The new speed after applying a scrub
     const newSpeed: number = Math.abs(speed) - scrub;
 
-    // Ensure speed doesn't go negative (and that we don't negative 0)
+    // Ensure speed doesn't go negative
     if (newSpeed <= 0)
         return 0;
 
@@ -68,4 +68,23 @@ const decay = (speed: number, delta: number, friction: number): number => {
     return direction === 1 ? newSpeed : -newSpeed;
 }
 
-export { speed, distance, delta, decay };
+/**
+ * Apply a maximum tolerance to the velocity.
+ * @param velocity - The velocity to apply the tolerance to.
+ * @param tolerance - The tolerance to apply.
+ */
+const applyVelocityTolerance = (velocity: number, tolerance: number): number => {
+    // Ensure that tolerance is positive
+    tolerance = Math.abs(tolerance);
+    
+    // Check for negatives and then get the absolute value of the velocity
+    const negative: boolean = velocity < 0;
+    const absolute: number = Math.abs(velocity);
+
+    // Check against tolerance and return the constrained velocity.
+    velocity = absolute > tolerance ? tolerance : absolute;
+
+    return negative ? -velocity : velocity;
+}
+
+export { speed, distance, delta, decay, applyVelocityTolerance };

@@ -1,4 +1,4 @@
-import { speed, distance, delta, decay, TimeDelta } from '@/utilities';
+import {speed, distance, delta, decay, TimeDelta, applyVelocityTolerance} from '@/utilities';
 
 describe('Utility functions', () => {
     describe('speed', () => {
@@ -81,6 +81,22 @@ describe('Utility functions', () => {
             expect(decay(1000000000, 10, 100000000)).toBe(0);
             // -1000000000 - (10 * 100000000)
             expect(decay(-1000000000, 10, 100000000)).toBe(0);           
+        });
+    });
+    
+    describe('velocityTolerance', (): void => {
+        it('should apply velocity tolerance to positive numbers', () => {
+            expect(applyVelocityTolerance(1000, 1200)).toBe(1000);
+            expect(applyVelocityTolerance(1200, 1000)).toBe(1000);
+        });
+
+        it('should apply velocity tolerance to negative numbers', () => {
+            expect(applyVelocityTolerance(-1000, 1200)).toBe(-1000);
+            expect(applyVelocityTolerance(-1200, 1000)).toBe(-1000);
+        });
+
+        it('should handle negative tolerance as if positive', () => {
+            expect(applyVelocityTolerance(1200, -1000)).toBe(1000);
         });
     });
 });

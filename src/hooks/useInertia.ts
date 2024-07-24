@@ -21,10 +21,10 @@ interface useInertiaProps {
  * @param friction - Friction to represent the amount of speed to decay a second. Set nice and high.
  */
 const useInertia = ({
-    lockX = false,
-    lockY = false,
-    friction = .95 // Where friction is a velocity decay over a second
-}: useInertiaProps) => {
+                        lockX = false,
+                        lockY = false,
+                        friction = .95 // Where friction is a velocity decay over a second
+                    }: useInertiaProps) => {
 
     // useRef over state to prevent excessive re-renders (high frequency updates)
     const velocity: React.MutableRefObject<Velocity> = useRef<Velocity>({ x: 0, y: 0 });
@@ -61,15 +61,19 @@ const useInertia = ({
         if (!lockY)
             nodeRef.current.scrollTop -= velocity.current.y * secondsDelta;
 
-        // If we don't have velocity over the tolerance of 1, remove the lingering velocity and return
-        if (Math.abs(velocity.current.x) < 1 || Math.abs(velocity.current.y) < 1) {
+        // If we don't have velocity over the tolerance of 1, remove the lingering velocity
+        if (Math.abs(velocity.current.x) < 1)
             velocity.current.x = 0;
+
+        if (Math.abs(velocity.current.y) < 1)
             velocity.current.y = 0;
+
+        // If x and y velocity are 0 then return (break recursion)
+        if (Math.abs(velocity.current.x) == 0 && Math.abs(velocity.current.y) == 0)
             return;
-        }
-        
+
         requestAnimationFrame(scroll);
-        
+
     }, [friction, lockX, lockY]);
 
     // Function to apply inertia to reference node
@@ -79,7 +83,7 @@ const useInertia = ({
 
         // Reset the last frame time
         lastFrameTime.current = 0;
-        
+
         // Set initial inertia
         requestAnimationFrame(scroll);
     }, [scroll]);
